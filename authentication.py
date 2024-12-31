@@ -59,15 +59,15 @@ def logout():
     app.storage.user.clear()
     ui.navigate('/')
 
-async def check_session():
-    if not app.storage.user.get('logged_in', False):
-        return
+#async def check_session():
+#    if not app.storage.user.get('logged_in', False):
+#        return
         
-    # Check if stored token is still valid
-    token = app.storage.user.get('token')
-    if token:
-        try:
-            google = OAuth2Session(CLIENT_ID, token=token)
-            user_info = google.get('https://www.googleapis.com/oauth2/v1/userinfo').json()
-        except TokenExpiredError:
-            app.storage.user.clear() 
+#    # Check if stored token is still valid
+#    token = app.storage.user.get('token')
+#    if token:
+#        try:
+#            google = OAuth2Session(CLIENT_ID, token=token)
+#            user_info = google.get('https://www.googleapis.com/oauth2/v1/userinfo').json()
+#        except TokenExpiredError:
+#            app.storage.user.clear() 
