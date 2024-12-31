@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 HISTORY_LENGTH = 14
 
+
 def page():
     # Create light theme styling
     ui.add_head_html('''
@@ -38,7 +39,7 @@ def page():
         }
         .habit-name {
             width: 150px;
-            flex: 0 0 150px;
+            flex-shrink: 0 0 150px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -54,14 +55,14 @@ def page():
             position: sticky;
             top: 0;
             background: #ffffff;
-            z-index: 1;
+            z-index: 3;
             border-bottom: 2px solid #e0e0e0;
         }
         /* Added: Style for header cell that's both sticky left and top */
         .header-corner {
             position: sticky;
             left: 0;
-            z-index: 2;
+            z-index: 4;
             background: #ffffff;
         }
         .color-box {
@@ -74,11 +75,12 @@ def page():
     ''')
 
     # Create container with dark background and scrollable content
-    with ui.card().classes('habit-grid w-full').style('margin: auto;'):
+    with ui.card().classes('habit-grid').style('max-height: 500px; overflow-y: auto; margin: auto; max-width: 800px;'):
         # Update header row with proper cell structure
         with ui.row().classes('habit-row header-row'):
             ui.label('').classes('habit-cell')  # Color column header
-            ui.label('Habits').classes('habit-name header-corner')  # Added text instead of empty label
+            # Added text instead of empty label
+            ui.label('Habits').classes('habit-name header-corner')
             today = datetime.now()
             for i in range(-HISTORY_LENGTH + 1, 1):
                 date = today + timedelta(days=i)
@@ -107,13 +109,13 @@ def page():
             'Purple': '#9C27B0'
         }
 
-
         for habit_name, color in habits:
             with ui.row().classes('habit-row'):
                 # Create a colored box instead of text label
                 with ui.button().classes('habit-cell').style(f'background-color: {color}; min-width: 30px; min-height: 30px; padding: 0; border: 1px solid #e0e0e0') as color_box:
                     pass  # Empty button with just color
-                habit_label = ui.label(habit_name).classes('habit-name').style(f'color: {color}')
+                habit_label = ui.label(habit_name).classes(
+                    'habit-name').style(f'color: {color}')
 
                 def create_color_picker(current_box, current_label):
                     async def handle_color_pick():
@@ -122,11 +124,13 @@ def page():
                             for color_value in COLOR_OPTIONS.values():
                                 def create_color_setter(new_color):
                                     def set_color():
-                                        current_box.style(f'background-color: {new_color}')
-                                        current_label.style(f'color: {new_color}')
+                                        current_box.style(
+                                            f'background-color: {new_color}')
+                                        current_label.style(
+                                            f'color: {new_color}')
                                         dialog.close()
                                     return set_color
-                                
+
                                 ui.button().style(f'''
                                     background-color: {color_value}; 
                                     min-width: 40px; 
@@ -138,28 +142,32 @@ def page():
                     return handle_color_pick
 
                 # Store the button reference directly instead of querying
-                color_box.on('click', create_color_picker(color_box, habit_label))
+                color_box.on('click', create_color_picker(
+                    color_box, habit_label))
 
                 for _ in range(HISTORY_LENGTH):  # Changed from range(5)
                     label = ui.label('0').classes('habit-cell x-mark')
                     label.style('color: #FF0000')  # Red for zero
-                    
+
                     def create_click_handler(current_label):
                         async def handle_click():
                             # Create a dialog with number input
                             with ui.dialog() as dialog, ui.card():
-                                input_field = ui.number(label='Enter value', value=int(current_label.text))
-                                
+                                input_field = ui.number(
+                                    label='Enter value', value=int(current_label.text))
+
                                 def update_value():
                                     new_value = str(int(input_field.value))
                                     current_label.text = new_value
                                     # Update styling based on value
                                     if new_value == '0':
-                                        current_label.style('color: #FF0000')  # Red for zero
+                                        current_label.style(
+                                            'color: #FF0000')  # Red for zero
                                     else:
-                                        current_label.style('color: #4CAF50')  # Green for non-zero
+                                        # Green for non-zero
+                                        current_label.style('color: #4CAF50')
                                     dialog.close()
-                                
+
                                 ui.button('Save', on_click=update_value)
                             dialog.open()
                         return handle_click
