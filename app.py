@@ -1,8 +1,8 @@
 from nicegui import ui, app
 from pathlib import Path
 from dotenv import load_dotenv
-from login import setup_login_page, check_session
 import os
+import authentication
 import cards
 
 # Load environment variables
@@ -10,7 +10,15 @@ load_dotenv()
 
 @ui.page('/')
 def home():
-    setup_login_page()
+
+    card = cards.default()
+    with card:
+      if not app.storage.user.get('logged_in', False):
+        ui.button('Login with Google',
+                  on_click=lambda: ui.navigate.to(authentication.start_oauth()))
+      else:
+        ui.label(f'Welcome back, {app.storage.user.get("email")}!')
+        ui.button('Logout', on_click=authentication.logout)
 
 # Run the app
 port = int(os.getenv('PORT', 8082))

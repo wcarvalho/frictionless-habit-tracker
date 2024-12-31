@@ -24,14 +24,6 @@ SCOPE = [
     'openid',
 ]
 
-def setup_login_page():
-    if not app.storage.user.get('logged_in', False):
-        with cards.default():
-            ui.button('Login with Google', on_click=lambda: ui.navigate.to(start_oauth()))
-    else:
-        with cards.default():
-            ui.label(f'Welcome back, {app.storage.user.get("email")}!')
-            ui.button('Logout', on_click=logout)
 
 @ui.page('/oauth_callback')
 def oauth_callback(code):
